@@ -1,187 +1,218 @@
-//! # Template Pallet
-//!
-//! A pallet with minimal functionality to help developers understand the essential components of
-//! writing a FRAME pallet. It is typically used in beginner tutorials or in Polkadot SDK template
-//! as a starting point for creating a new pallet and **not meant to be used in production**.
-//!
-//! ## Overview
-//!
-//! This template pallet contains basic examples of:
-//! - declaring a storage item that stores a single block-number
-//! - declaring and using events
-//! - declaring and using errors
-//! - a dispatchable function that allows a user to set a new value to storage and emits an event
-//!   upon success
-//! - another dispatchable function that causes a custom error to be thrown
-//!
-//! Each pallet section is annotated with an attribute using the `#[pallet::...]` procedural macro.
-//! This macro generates the necessary code for a pallet to be aggregated into a FRAME runtime.
-//!
-//! To get started with pallet development, consider using this tutorial:
-//!
-//! <https://paritytech.github.io/polkadot-sdk/master/polkadot_sdk_docs/guides/your_first_pallet/index.html>
-//!
-//! And reading the main documentation of the `frame` crate:
-//!
-//! <https://paritytech.github.io/polkadot-sdk/master/polkadot_sdk_docs/polkadot_sdk/frame_runtime/index.html>
-//!
-//! And looking at the frame [`kitchen-sink`](https://paritytech.github.io/polkadot-sdk/master/pallet_example_kitchensink/index.html)
-//! pallet, a showcase of all pallet macros.
-//!
-//! ### Pallet Sections
-//!
-//! The pallet sections in this template are:
-//!
-//! - A **configuration trait** that defines the types and parameters which the pallet depends on
-//!   (denoted by the `#[pallet::config]` attribute). See: [`Config`].
-//! - A **means to store pallet-specific data** (denoted by the `#[pallet::storage]` attribute).
-//!   See: [`storage_types`].
-//! - A **declaration of the events** this pallet emits (denoted by the `#[pallet::event]`
-//!   attribute). See: [`Event`].
-//! - A **declaration of the errors** that this pallet can throw (denoted by the `#[pallet::error]`
-//!   attribute). See: [`Error`].
-//! - A **set of dispatchable functions** that define the pallet's functionality (denoted by the
-//!   `#[pallet::call]` attribute). See: [`dispatchables`].
-//!
-//! Run `cargo doc --package pallet-template --open` to view this pallet's documentation.
-
 #![cfg_attr(not(feature = "std"), no_std)]
 
 pub use pallet::*;
 
+mod constants;
 #[cfg(test)]
 mod mock;
-
 #[cfg(test)]
 mod tests;
+mod types;
 
 pub mod weights;
 
 #[cfg(feature = "runtime-benchmarks")]
 mod benchmarking;
 
-// <https://paritytech.github.io/polkadot-sdk/master/polkadot_sdk_docs/polkadot_sdk/frame_runtime/index.html>
-// <https://paritytech.github.io/polkadot-sdk/master/polkadot_sdk_docs/guides/your_first_pallet/index.html>
-//
-// To see a full list of `pallet` macros and their use cases, see:
-// <https://paritytech.github.io/polkadot-sdk/master/pallet_example_kitchensink/index.html>
-// <https://paritytech.github.io/polkadot-sdk/master/frame_support/pallet_macros/index.html>
 #[frame::pallet]
 pub mod pallet {
     use frame::prelude::*;
 
-    /// Configure the pallet by specifying the parameters and types on which it depends.
+    use crate::types::{Case, CaseStatus, CaseType, Description, DocumentURL};
+
     #[pallet::config]
     pub trait Config: frame_system::Config {
         type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
-
-        /// A type representing the weights required by the dispatchables of this pallet.
         type WeightInfo: crate::weights::WeightInfo;
+        #[pallet::constant]
+        type ChallengeWindow: Get<BlockNumberFor<Self>>;
     }
 
     #[pallet::pallet]
     pub struct Pallet<T>(_);
 
-    /// A struct to store a single block-number. Has all the right derives to store it in storage.
-    /// <https://paritytech.github.io/polkadot-sdk/master/polkadot_sdk_docs/reference_docs/frame_storage_derives/index.html>
-    #[derive(
-        Encode, Decode, MaxEncodedLen, TypeInfo, CloneNoBound, PartialEqNoBound, DefaultNoBound,
-    )]
-    #[scale_info(skip_type_params(T))]
-    pub struct CompositeStruct<T: Config> {
-        /// A block number.
-        pub(crate) block_number: BlockNumberFor<T>,
-    }
-
-    /// The pallet's storage items.
-    /// <https://paritytech.github.io/polkadot-sdk/master/polkadot_sdk_docs/guides/your_first_pallet/index.html#storage>
-    /// <https://paritytech.github.io/polkadot-sdk/master/frame_support/pallet_macros/attr.storage.html>
     #[pallet::storage]
-    pub type Something<T: Config> = StorageValue<_, CompositeStruct<T>>;
+    pub(super) type CaseCount<T: Config> = StorageValue<_, u128, ValueQuery>;
 
-    /// Pallets use events to inform users when important changes are made.
-    /// <https://paritytech.github.io/polkadot-sdk/master/polkadot_sdk_docs/guides/your_first_pallet/index.html#event-and-error>
+    #[pallet::storage]
+    pub(super) type Cases<T: Config> =
+        StorageMap<_, Blake2_128Concat, u128, Case<T::AccountId, BlockNumberFor<T>>>;
+
+    #[pallet::storage]
+    pub type CaseStatusOf<T: Config> = StorageMap<_, Blake2_128Concat, u128, CaseStatus>;
+
+    #[pallet::storage]
+    pub type CaseDeadline<T: Config> = StorageMap<_, Blake2_128Concat, u128, BlockNumberFor<T>>;
+
+    #[pallet::storage]
+    pub type CaseSupporters<T: Config> =
+        StorageMap<_, Blake2_128Concat, u128, BoundedVec<T::AccountId, ConstU32<256>>, ValueQuery>;
+
+    #[pallet::storage]
+    pub type CaseChallengers<T: Config> =
+        StorageMap<_, Blake2_128Concat, u128, BoundedVec<T::AccountId, ConstU32<256>>, ValueQuery>;
+
+    #[pallet::storage]
+    pub type CasesByDeadline<T: Config> = StorageMap<
+        _,
+        Blake2_128Concat,
+        BlockNumberFor<T>,
+        BoundedVec<u128, ConstU32<1024>>,
+        ValueQuery,
+    >;
+
     #[pallet::event]
     #[pallet::generate_deposit(pub(super) fn deposit_event)]
     pub enum Event<T: Config> {
-        /// We usually use passive tense for events.
-        SomethingStored {
-            block_number: BlockNumberFor<T>,
+        CaseSubmitted {
+            id: u128,
             who: T::AccountId,
+        },
+        CaseSupported {
+            id: u128,
+            who: T::AccountId,
+        },
+        CaseChallenged {
+            id: u128,
+            who: T::AccountId,
+        },
+        CaseAccepted {
+            id: u128,
+            support_count: u32,
+            challenge_count: u32,
+        },
+        CaseRejected {
+            id: u128,
+            support_count: u32,
+            challenge_count: u32,
+        },
+        CaseInconclusive {
+            id: u128,
+            support_count: u32,
+            challenge_count: u32,
         },
     }
 
-    /// Errors inform users that something went wrong.
-    /// <https://paritytech.github.io/polkadot-sdk/master/polkadot_sdk_docs/guides/your_first_pallet/index.html#event-and-error>
     #[pallet::error]
     pub enum Error<T> {
-        /// Error names should be descriptive.
-        NoneValue,
-        /// Errors should have helpful documentation associated with them.
         StorageOverflow,
+        AlreadySupporting,
+        AlreadyChallenging,
+        UnknownCase,
+        TooEarlyToFinalize,
     }
 
     #[pallet::hooks]
-    impl<T: Config> Hooks<BlockNumberFor<T>> for Pallet<T> {}
+    impl<T: Config> Hooks<BlockNumberFor<T>> for Pallet<T> {
+        fn on_initialize(now: BlockNumberFor<T>) -> Weight {
+            log::info!("Check block {now:?} for deadlines.",);
+            let cases = CasesByDeadline::<T>::take(now);
+            log::info!(
+                "There are {} cases with deadlines in block {now:?}.",
+                cases.len()
+            );
+            for case_id in cases.iter() {
+                log::info!("Finalize case {case_id}.");
+                let support_count = CaseSupporters::<T>::get(case_id).len() as u32;
+                let challenge_count = CaseChallengers::<T>::get(case_id).len() as u32;
+                if support_count > challenge_count {
+                    CaseStatusOf::<T>::insert(case_id, CaseStatus::Accepted);
+                    Self::deposit_event(Event::CaseAccepted {
+                        id: *case_id,
+                        support_count,
+                        challenge_count,
+                    });
+                } else if challenge_count > support_count {
+                    CaseStatusOf::<T>::insert(case_id, CaseStatus::Rejected);
+                    Self::deposit_event(Event::CaseRejected {
+                        id: *case_id,
+                        support_count,
+                        challenge_count,
+                    });
+                } else {
+                    CaseStatusOf::<T>::insert(case_id, CaseStatus::Inconclusive);
+                    Self::deposit_event(Event::CaseInconclusive {
+                        id: *case_id,
+                        support_count,
+                        challenge_count,
+                    });
+                }
+            }
+            T::DbWeight::get().reads_writes(cases.len() as u64 * 3, cases.len() as u64 * 2)
+        }
+    }
 
-    /// Dispatchable functions allows users to interact with the pallet and invoke state changes.
-    /// These functions materialize as "extrinsics", which are often compared to transactions.
-    /// Dispatchable functions must be annotated with a weight and must return a DispatchResult.
-    /// <https://paritytech.github.io/polkadot-sdk/master/polkadot_sdk_docs/guides/your_first_pallet/index.html#dispatchables>
     #[pallet::call]
     impl<T: Config> Pallet<T> {
-        /// An example dispatchable that takes a singles value as a parameter, writes the value to
-        /// storage and emits an event. This function must be dispatched by a signed extrinsic.
         #[pallet::call_index(0)]
-        #[pallet::weight(Weight::from_parts(10_000, 0) + T::DbWeight::get().writes(1))]
+        #[pallet::weight(Weight::from_parts(10_000, 0) + T::DbWeight::get().reads_writes(2, 2))]
         #[allow(clippy::useless_conversion)]
-        pub fn do_something(origin: OriginFor<T>, bn: u32) -> DispatchResultWithPostInfo {
-            // Check that the extrinsic was signed and get the signer.
-            // This function will return an error if the extrinsic is not signed.
-            // <https://paritytech.github.io/polkadot-sdk/master/polkadot_sdk_docs/reference_docs/frame_origin/index.html>
-            let who = ensure_signed(origin)?;
-
-            // Convert the u32 into a block number. This is possible because the set of trait bounds
-            // defined in [`frame_system::Config::BlockNumber`].
-            let block_number: BlockNumberFor<T> = bn.into();
-
-            // Update storage.
-            <Something<T>>::put(CompositeStruct { block_number });
-
-            // Emit an event.
-            Self::deposit_event(Event::SomethingStored { block_number, who });
-
-            // Return a successful [`DispatchResultWithPostInfo`] or [`DispatchResult`].
+        pub fn submit_case(
+            origin: OriginFor<T>,
+            case_type: CaseType<T::AccountId>,
+            document_url: DocumentURL,
+            description: Description,
+        ) -> DispatchResultWithPostInfo {
+            let submitter = ensure_signed(origin)?;
+            let old_case_count = CaseCount::<T>::get();
+            let new_case_count = old_case_count
+                .checked_add(One::one())
+                .ok_or(Error::<T>::StorageOverflow)?;
+            let submitted_at: BlockNumberFor<T> = <frame_system::Pallet<T>>::block_number();
+            let case = Case {
+                id: old_case_count,
+                submitter: submitter.clone(),
+                case_type,
+                document_url,
+                description,
+                submitted_at,
+            };
+            Cases::<T>::insert(old_case_count, case);
+            CaseCount::<T>::set(new_case_count);
+            let deadline: BlockNumberFor<T> =
+                submitted_at.saturating_add(T::ChallengeWindow::get());
+            CaseStatusOf::<T>::insert(old_case_count, CaseStatus::Open);
+            CaseDeadline::<T>::insert(old_case_count, deadline);
+            let _ = CasesByDeadline::<T>::try_append(deadline, old_case_count);
+            Self::deposit_event(Event::CaseSubmitted {
+                id: old_case_count,
+                who: submitter.clone(),
+            });
             Ok(().into())
         }
 
-        /// An example dispatchable that may throw a custom error.
         #[pallet::call_index(1)]
-        #[pallet::weight(Weight::from_parts(10_000, 0) + T::DbWeight::get().reads_writes(1,1))]
+        #[pallet::weight(Weight::from_parts(10_000, 0) + T::DbWeight::get().reads_writes(2, 2))]
         #[allow(clippy::useless_conversion)]
-        pub fn cause_error(origin: OriginFor<T>) -> DispatchResultWithPostInfo {
-            let _who = ensure_signed(origin)?;
-
-            // Read a value from storage.
-            match <Something<T>>::get() {
-                // Return an error if the value has not been set.
-                None => Err(Error::<T>::NoneValue)?,
-                Some(mut old) => {
-                    // Increment the value read from storage; will error in the event of overflow.
-                    old.block_number = old
-                        .block_number
-                        .checked_add(&One::one())
-                        // ^^ equivalent is to:
-                        // .checked_add(&1u32.into())
-                        // both of which build a `One` instance for the type `BlockNumber`.
-                        .ok_or(Error::<T>::StorageOverflow)?;
-                    // Update the value in storage with the incremented result.
-                    <Something<T>>::put(old);
-                    // Explore how you can rewrite this using
-                    // [`frame_support::storage::StorageValue::mutate`].
-                    Ok(().into())
-                }
+        pub fn support_case(origin: OriginFor<T>, case_id: u128) -> DispatchResultWithPostInfo {
+            let supporter = ensure_signed(origin)?;
+            let supporters = CaseSupporters::<T>::get(case_id);
+            if supporters.contains(&supporter) {
+                return Err(Error::<T>::AlreadySupporting.into());
             }
+            let _ = CaseSupporters::<T>::try_append(case_id, supporter.clone());
+            Self::deposit_event(Event::CaseSupported {
+                id: case_id,
+                who: supporter.clone(),
+            });
+            Ok(().into())
+        }
+
+        #[pallet::call_index(2)]
+        #[pallet::weight(Weight::from_parts(10_000, 0) + T::DbWeight::get().reads_writes(2, 2))]
+        #[allow(clippy::useless_conversion)]
+        pub fn challenge_case(origin: OriginFor<T>, case_id: u128) -> DispatchResultWithPostInfo {
+            let challenger = ensure_signed(origin)?;
+            let challengers = CaseChallengers::<T>::get(case_id);
+            if challengers.contains(&challenger) {
+                return Err(Error::<T>::AlreadyChallenging.into());
+            }
+            let _ = CaseChallengers::<T>::try_append(case_id, challenger.clone());
+            Self::deposit_event(Event::CaseChallenged {
+                id: case_id,
+                who: challenger.clone(),
+            });
+            Ok(().into())
         }
     }
 }

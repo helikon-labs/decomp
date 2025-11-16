@@ -320,4 +320,5 @@ impl pallet_collator_selection::Config for Runtime {
 impl pallet_decomp::Config for Runtime {
     type RuntimeEvent = RuntimeEvent;
     type WeightInfo = pallet_decomp::weights::SubstrateWeight<Runtime>;
+    type ChallengeWindow = ConstU32<20>;
 }

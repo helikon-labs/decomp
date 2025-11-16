@@ -315,7 +315,7 @@ mod runtime {
 
     // Decomp
     #[runtime::pallet_index(50)]
-    pub type TemplatePallet = pallet_decomp;
+    pub type Decomp = pallet_decomp;
 }
 
 #[docify::export(register_validate_block)]

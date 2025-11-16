@@ -5,18 +5,18 @@ chain = "rococo-local"
 [[relaychain.nodes]]
 name = "alice"
 validator = true
-ws_port = 9944
+rpc_port = 9944
 
 [[relaychain.nodes]]
 name = "bob"
 validator = true
-ws_port = 9955
+rpc_port = 9955
 
 [[parachains]]
 id = 1000
-chain_spec_path = "./dev_chain_spec.json"
+chain_spec_path = "/n01/development/decomp/chainspec/chainspec.json"
 
 [parachains.collator]
 name = "charlie"
-ws_port = 9988
+rpc_port = 9988
 command = "polkadot-omni-node"

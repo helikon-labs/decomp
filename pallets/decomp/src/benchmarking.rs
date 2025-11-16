@@ -10,6 +10,7 @@ mod benchmarks {
     use crate::pallet::Pallet as Template;
     use frame_system::RawOrigin;
 
+    /*
     #[benchmark]
     fn do_something() {
         let caller: T::AccountId = whitelisted_caller();
@@ -36,6 +37,7 @@ mod benchmarks {
             Some(101u32.into())
         );
     }
+    */
 
     impl_benchmark_test_suite!(Template, crate::mock::new_test_ext(), crate::mock::Test);
 }

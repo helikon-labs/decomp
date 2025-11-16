@@ -1,3 +1,4 @@
 too-many-arguments-threshold = 20
 excessive-nesting-threshold = 8
 too-many-lines-threshold = 250
+large-error-threshold = 300

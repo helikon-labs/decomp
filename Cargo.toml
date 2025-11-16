@@ -6,7 +6,7 @@ repository = "https://github.com/helikon/decomp.git"
 edition = "2021"
 
 [workspace]
-default-members = ["pallets/decomp", "runtime"]
+default-members = ["pallets/decomp", "runtime", "node"]
 members = [
     "node",
     "pallets/decomp",

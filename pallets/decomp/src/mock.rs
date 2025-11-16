@@ -40,10 +40,11 @@ impl frame_system::Config for Test {
 impl crate::Config for Test {
     type RuntimeEvent = RuntimeEvent;
     type WeightInfo = ();
+    type ChallengeWindow = ();
 }
 
 // Build genesis storage according to the mock runtime.
-pub fn new_test_ext() -> TestState {
+pub fn _new_test_ext() -> TestState {
     GenesisConfig::<Test>::default()
         .build_storage()
         .unwrap()

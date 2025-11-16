@@ -1,3 +1,4 @@
+/*
 use crate::{mock::*, Error, Something};
 use frame::testing_prelude::*;
 
@@ -21,3 +22,4 @@ fn correct_error_for_none_value() {
         );
     });
 }
+*/
