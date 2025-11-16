@@ -111,6 +111,7 @@ pub mod pallet {
         AlreadyChallenging,
         UnknownCase,
         TooEarlyToFinalize,
+        ReferendumClosed,
     }
 
     #[pallet::hooks]
@@ -198,6 +199,11 @@ pub mod pallet {
         #[allow(clippy::useless_conversion)]
         pub fn support_case(origin: OriginFor<T>, case_id: u128) -> DispatchResultWithPostInfo {
             let supporter = ensure_signed(origin)?;
+            if let Some(status) = CaseStatusOf::<T>::get(case_id) {
+                if status != CaseStatus::Open {
+                    return Err(Error::<T>::ReferendumClosed.into());
+                }
+            }
             let supporters = CaseSupporters::<T>::get(case_id);
             if supporters.contains(&supporter) {
                 return Err(Error::<T>::AlreadySupporting.into());
@@ -215,6 +221,11 @@ pub mod pallet {
         #[allow(clippy::useless_conversion)]
         pub fn challenge_case(origin: OriginFor<T>, case_id: u128) -> DispatchResultWithPostInfo {
             let challenger = ensure_signed(origin)?;
+            if let Some(status) = CaseStatusOf::<T>::get(case_id) {
+                if status != CaseStatus::Open {
+                    return Err(Error::<T>::ReferendumClosed.into());
+                }
+            }
             let challengers = CaseChallengers::<T>::get(case_id);
             if challengers.contains(&challenger) {
                 return Err(Error::<T>::AlreadyChallenging.into());
