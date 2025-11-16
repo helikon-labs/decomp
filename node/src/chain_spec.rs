@@ -65,11 +65,11 @@ pub fn local_chain_spec() -> ChainSpec {
             para_id: runtime::PARACHAIN_ID,
         },
     )
-    .with_name("DeComp Testnet")
-    .with_id("decomp_testnet")
+    .with_name("DeComp Recoleta Testnet")
+    .with_id("decomp_recoleta")
     .with_chain_type(ChainType::Local)
     .with_genesis_config_preset_name(sc_chain_spec::LOCAL_TESTNET_RUNTIME_PRESET)
-    .with_protocol_id("recoleta")
+    .with_protocol_id("decomp_recoleta")
     .with_properties(properties)
     .build()
 }

@@ -1,6 +1,6 @@
 [package]
-name = "parachain-template-node"
-description = "A parachain node template built with Substrate and Cumulus, part of Polkadot Sdk."
+name = "decomp-node"
+description = "Decentralized Compliance Network parachain node."
 version = "0.1.0"
 license = "Unlicense"
 authors.workspace = true
