@@ -1,5 +1,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
+//! Decomp pallet - initial implementation.
+
 pub use pallet::*;
 
 mod constants;
@@ -31,27 +33,34 @@ pub mod pallet {
     #[pallet::pallet]
     pub struct Pallet<T>(_);
 
+    /// Total case count.
     #[pallet::storage]
     pub(super) type CaseCount<T: Config> = StorageValue<_, u128, ValueQuery>;
 
+    /// All cases by id.
     #[pallet::storage]
     pub(super) type Cases<T: Config> =
         StorageMap<_, Blake2_128Concat, u128, Case<T::AccountId, BlockNumberFor<T>>>;
 
+    /// Case statuses.
     #[pallet::storage]
     pub type CaseStatusOf<T: Config> = StorageMap<_, Blake2_128Concat, u128, CaseStatus>;
 
+    /// Case deadlines (block #).
     #[pallet::storage]
     pub type CaseDeadline<T: Config> = StorageMap<_, Blake2_128Concat, u128, BlockNumberFor<T>>;
 
+    /// Supporters of a case.
     #[pallet::storage]
     pub type CaseSupporters<T: Config> =
         StorageMap<_, Blake2_128Concat, u128, BoundedVec<T::AccountId, ConstU32<256>>, ValueQuery>;
 
+    /// Challengers of a case.
     #[pallet::storage]
     pub type CaseChallengers<T: Config> =
         StorageMap<_, Blake2_128Concat, u128, BoundedVec<T::AccountId, ConstU32<256>>, ValueQuery>;
 
+    /// Cases by deadline - for easy processing by block number.
     #[pallet::storage]
     pub type CasesByDeadline<T: Config> = StorageMap<
         _,
@@ -61,6 +70,7 @@ pub mod pallet {
         ValueQuery,
     >;
 
+    /// Event definitions.
     #[pallet::event]
     #[pallet::generate_deposit(pub(super) fn deposit_event)]
     pub enum Event<T: Config> {
@@ -93,6 +103,7 @@ pub mod pallet {
         },
     }
 
+    /// Error definitions.
     #[pallet::error]
     pub enum Error<T> {
         StorageOverflow,
@@ -155,27 +166,28 @@ pub mod pallet {
         ) -> DispatchResultWithPostInfo {
             let submitter = ensure_signed(origin)?;
             let old_case_count = CaseCount::<T>::get();
+            let case_id = old_case_count;
             let new_case_count = old_case_count
                 .checked_add(One::one())
                 .ok_or(Error::<T>::StorageOverflow)?;
             let submitted_at: BlockNumberFor<T> = <frame_system::Pallet<T>>::block_number();
             let case = Case {
-                id: old_case_count,
+                id: case_id,
                 submitter: submitter.clone(),
                 case_type,
                 document_url,
                 description,
                 submitted_at,
             };
-            Cases::<T>::insert(old_case_count, case);
+            Cases::<T>::insert(case_id, case);
             CaseCount::<T>::set(new_case_count);
             let deadline: BlockNumberFor<T> =
                 submitted_at.saturating_add(T::ChallengeWindow::get());
-            CaseStatusOf::<T>::insert(old_case_count, CaseStatus::Open);
-            CaseDeadline::<T>::insert(old_case_count, deadline);
-            let _ = CasesByDeadline::<T>::try_append(deadline, old_case_count);
+            CaseStatusOf::<T>::insert(case_id, CaseStatus::Open);
+            CaseDeadline::<T>::insert(case_id, deadline);
+            let _ = CasesByDeadline::<T>::try_append(deadline, case_id);
             Self::deposit_event(Event::CaseSubmitted {
-                id: old_case_count,
+                id: case_id,
                 who: submitter.clone(),
             });
             Ok(().into())

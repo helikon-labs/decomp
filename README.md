@@ -1,3 +1,3 @@
 ## Decentralized Compliance Network
 
-DeComp Polkadot parachain source code.
+An initial mini-PoC implementation of Decentralized Compliance Network for the Sub0 Symbiosis 2025 in Buenos Aires.
