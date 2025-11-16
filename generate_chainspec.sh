@@ -1,5 +1,4 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
 chain-spec-builder \
   --chain-spec-path ./chainspec/chainspec.json \
   create \
