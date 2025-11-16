@@ -4,7 +4,7 @@ use cumulus_client_service::storage_proof_size::HostFunctions as ReclaimHostFunc
 use cumulus_primitives_core::ParaId;
 use frame_benchmarking_cli::{BenchmarkCmd, SUBSTRATE_REFERENCE_HARDWARE};
 use log::info;
-use parachain_template_runtime::Block;
+use decomp_runtime::Block;
 use sc_cli::{
 	ChainSpec, CliConfiguration, DefaultConfigurationValues, ImportParams, KeystoreParams,
 	NetworkParams, Result, RpcEndpoint, SharedParams, SubstrateCli,
@@ -19,16 +19,15 @@ use crate::{
 
 fn load_spec(id: &str) -> std::result::Result<Box<dyn ChainSpec>, String> {
 	Ok(match id {
-		"dev" => Box::new(chain_spec::development_chain_spec()),
-		"template-rococo" => Box::new(chain_spec::local_chain_spec()),
-		"" | "local" => Box::new(chain_spec::local_chain_spec()),
+		"development" => Box::new(chain_spec::development_chain_spec()),
+		"" | "template-rococo" | "local" => Box::new(chain_spec::local_chain_spec()),
 		path => Box::new(chain_spec::ChainSpec::from_json_file(std::path::PathBuf::from(path))?),
 	})
 }
 
 impl SubstrateCli for Cli {
 	fn impl_name() -> String {
-		"Parachain Collator Template".into()
+		"DeComp Node".into()
 	}
 
 	fn impl_version() -> String {

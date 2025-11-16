@@ -3508,6 +3508,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "decomp-runtime"
+version = "0.1.0"
+dependencies = [
+ "cumulus-pallet-parachain-system",
+ "docify",
+ "hex-literal",
+ "log",
+ "pallet-parachain-template",
+ "parity-scale-codec",
+ "polkadot-sdk 2503.0.1",
+ "scale-info",
+ "serde_json",
+ "smallvec",
+ "substrate-wasm-builder",
+]
+
+[[package]]
 name = "der"
 version = "0.7.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -9996,31 +10013,14 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "color-print",
+ "decomp-runtime",
  "docify",
  "futures",
  "jsonrpsee",
  "log",
- "parachain-template-runtime",
  "polkadot-sdk 2503.0.1",
  "serde",
  "substrate-prometheus-endpoint",
-]
-
-[[package]]
-name = "parachain-template-runtime"
-version = "0.1.0"
-dependencies = [
- "cumulus-pallet-parachain-system",
- "docify",
- "hex-literal",
- "log",
- "pallet-parachain-template",
- "parity-scale-codec",
- "polkadot-sdk 2503.0.1",
- "scale-info",
- "serde_json",
- "smallvec",
- "substrate-wasm-builder",
 ]
 
 [[package]]

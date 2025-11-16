@@ -4,7 +4,7 @@
 use std::{sync::Arc, time::Duration};
 
 // Local Runtime Types
-use parachain_template_runtime::{
+use decomp_runtime::{
 	apis::RuntimeApi,
 	opaque::{Block, Hash},
 };

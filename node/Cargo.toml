@@ -17,7 +17,7 @@ docify = { workspace = true }
 futures = { workspace = true }
 jsonrpsee = { features = ["server"], workspace = true }
 log = { workspace = true, default-features = true }
-parachain-template-runtime.workspace = true
+decomp-runtime.workspace = true
 polkadot-sdk = { workspace = true, features = ["node"] }
 prometheus-endpoint.default-features = true
 prometheus-endpoint.workspace = true
@@ -30,14 +30,14 @@ polkadot-sdk = { workspace = true, features = ["substrate-build-script-utils"] }
 default = ["std"]
 std = [
 	"log/std",
-	"parachain-template-runtime/std",
+	"decomp-runtime/std",
 	"polkadot-sdk/std",
 ]
 runtime-benchmarks = [
-	"parachain-template-runtime/runtime-benchmarks",
+	"decomp-runtime/runtime-benchmarks",
 	"polkadot-sdk/runtime-benchmarks",
 ]
 try-runtime = [
-	"parachain-template-runtime/try-runtime",
+	"decomp-runtime/try-runtime",
 	"polkadot-sdk/try-runtime",
 ]

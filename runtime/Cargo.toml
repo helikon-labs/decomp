@@ -1,6 +1,6 @@
 [package]
-name = "parachain-template-runtime"
-description = "A parachain runtime template built with Substrate and Cumulus, part of Polkadot Sdk."
+name = "decomp-runtime"
+description = "Decentralized Compliance Network parachain runtime."
 version = "0.1.0"
 license = "Unlicense"
 authors.workspace = true

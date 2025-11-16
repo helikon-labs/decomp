@@ -1,8 +1,8 @@
 [workspace.package]
 license = "MIT-0"
-authors = ["Parity Technologies <admin@parity.io>"]
+authors = ["kukabi <kutsal@helikon.io>"]
 homepage = "https://paritytech.github.io/polkadot-sdk/"
-repository = "https://github.com/paritytech/polkadot-sdk-parachain-template.git"
+repository = "https://github.com/helikon/decomp.git"
 edition = "2021"
 
 [workspace]
@@ -15,7 +15,7 @@ members = [
 resolver = "2"
 
 [workspace.dependencies]
-parachain-template-runtime = { path = "./runtime", default-features = false }
+decomp-runtime = { path = "./runtime", default-features = false }
 pallet-parachain-template = { path = "./pallets/template", default-features = false }
 clap = { version = "4.5.13" }
 color-print = { version = "0.3.4" }
@@ -40,7 +40,7 @@ opt-level = 3
 panic = "unwind"
 
 [profile.production]
-codegen-units = 1
+#codegen-units = 1
 inherits = "release"
-lto = true
+#lto = true
 
