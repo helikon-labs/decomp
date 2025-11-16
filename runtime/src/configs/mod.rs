@@ -316,8 +316,8 @@ impl pallet_collator_selection::Config for Runtime {
     type WeightInfo = ();
 }
 
-/// Configure the pallet template in pallets/template.
-impl pallet_parachain_template::Config for Runtime {
+/// Configure the decomp pallet.
+impl pallet_decomp::Config for Runtime {
     type RuntimeEvent = RuntimeEvent;
-    type WeightInfo = pallet_parachain_template::weights::SubstrateWeight<Runtime>;
+    type WeightInfo = pallet_decomp::weights::SubstrateWeight<Runtime>;
 }

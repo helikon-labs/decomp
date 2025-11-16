@@ -3515,7 +3515,7 @@ dependencies = [
  "docify",
  "hex-literal",
  "log",
- "pallet-parachain-template",
+ "pallet-decomp",
  "parity-scale-codec",
  "polkadot-sdk 2503.0.1",
  "scale-info",
@@ -8634,6 +8634,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "pallet-decomp"
+version = "0.1.0"
+dependencies = [
+ "parity-scale-codec",
+ "polkadot-sdk-frame",
+ "scale-info",
+]
+
+[[package]]
 name = "pallet-delegated-staking"
 version = "7.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -9169,15 +9178,6 @@ dependencies = [
  "sp-io",
  "sp-metadata-ir",
  "sp-runtime",
-]
-
-[[package]]
-name = "pallet-parachain-template"
-version = "0.1.0"
-dependencies = [
- "parity-scale-codec",
- "polkadot-sdk-frame",
- "scale-info",
 ]
 
 [[package]]

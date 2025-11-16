@@ -313,9 +313,9 @@ mod runtime {
     #[runtime::pallet_index(33)]
     pub type MessageQueue = pallet_message_queue;
 
-    // Template
+    // Decomp
     #[runtime::pallet_index(50)]
-    pub type TemplatePallet = pallet_parachain_template;
+    pub type TemplatePallet = pallet_decomp;
 }
 
 #[docify::export(register_validate_block)]

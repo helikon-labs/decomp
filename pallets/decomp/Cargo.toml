@@ -1,6 +1,6 @@
 [package]
-name = "pallet-parachain-template"
-description = "FRAME pallet template for defining custom runtime logic."
+name = "pallet-decomp"
+description = "Decentralized Compliance Network on-chain logic."
 version = "0.1.0"
 license = "Unlicense"
 authors.workspace = true
